@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Home Stock</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f7f6f2;
+  --surface:#ffffff;
+  --surface2:#f0efe9;
+  --surface3:#e8e7e0;
+  --text:#1c1b18;
+  --text2:#6b6a64;
+  --text3:#a8a79f;
+  --border:rgba(0,0,0,0.08);
+  --border2:rgba(0,0,0,0.15);
+  --accent:#2d6a4f;
+  --accent-bg:#d8f3dc;
+  --accent-text:#1b4332;
+  --warn-bg:#fff3cd;
+  --warn-text:#7d5a00;
+  --danger-bg:#fde8e8;
+  --danger-text:#9b2335;
+  --amber-bg:#fef0d9;
+  --amber-text:#7d4e00;
+  --blue-bg:#e8f4fd;
+  --blue-text:#1a5276;
+  --pin-bg:#fdf6e3;
+  --pin-text:#7d6200;
+  --r:10px;
+  --rl:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#161614;--surface:#1f1f1d;--surface2:#282826;--surface3:#323230;
+    --text:#f2f1eb;--text2:#a8a79f;--text3:#68675f;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+    --accent:#52b788;--accent-bg:#1b4332;--accent-text:#95d5b2;
+    --warn-bg:#3d2e00;--warn-text:#ffc107;
+    --danger-bg:#3d1515;--danger-text:#f08080;
+    --amber-bg:#3d2500;--amber-text:#ffb347;
+    --blue-bg:#0d2d42;--blue-text:#7ec8e3;
+    --pin-bg:#2d2800;--pin-text:#ffd700;
+    --shadow:0 1px 3px rgba(0,0,0,0.3);
+  }
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;height:54px}
+.header-logo{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.3px;flex:1}
+.header-logo span{color:var(--accent)}
+.header-btn{background:transparent;border:1px solid var(--border2);border-radius:var(--r);padding:6px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.header-btn:hover{background:var(--surface2)}
+.header-btn.danger{border-color:var(--danger-text);color:var(--danger-text)}
+.header-btn.danger:hover{background:var(--danger-bg)}
+
+/* NAV TABS */
+.nav{display:flex;gap:2px;padding:10px 1rem;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-tab{padding:7px 15px;border-radius:var(--r);border:none;background:transparent;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:6px}
+.nav-tab.active{background:var(--surface2);color:var(--text);font-weight:500}
+.nav-tab:hover:not(.active){background:var(--surface3)}
+.nav-badge{background:var(--accent);color:white;border-radius:999px;font-size:10px;padding:1px 6px;font-weight:600;min-width:18px;text-align:center}
+.nav-badge.warn{background:#e67e22}
+.nav-badge.danger{background:#c0392b}
+
+.wrap{max-width:960px;margin:0 auto;padding:1rem}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)}
+.stat.s-low .stat-val{color:var(--amber-text)}
+.stat.s-out .stat-val{color:var(--danger-text)}
+.stat.s-exp .stat-val{color:var(--warn-text)}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.toolbar input[type=text]{flex:1;min-width:180px}
+.tool-btn{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tool-btn:hover{background:var(--surface2);color:var(--text)}
+.tool-btn.active{background:var(--accent-bg);color:var(--accent-text);border-color:var(--accent)}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.pill{padding:5px 13px;border-radius:999px;border:1px solid var(--border);background:transparent;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap}
+.pill:hover{border-color:var(--border2);color:var(--text)}
+.pill.active{background:var(--surface);color:var(--text);border-color:var(--border2);font-weight:500}
+.pill.manage{border-style:dashed;color:var(--text3)}
+.pill.manage:hover{color:var(--text)}
+
+/* ADD FORM */
+.add-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1.25rem}
+.add-panel-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.form-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:14px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;outline:none;width:100%;transition:border-color .15s}
+input::placeholder{color:var(--text3)}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(82,183,136,0.15)}
+select option{background:var(--surface);color:var(--text)}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+
+/* GRID */
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px;position:relative;transition:border-color .2s,box-shadow .2s}
+.card:hover{box-shadow:var(--shadow)}
+.card.status-low{border-left:3px solid #e67e22}
+.card.status-out{border-left:3px solid #c0392b}
+.card.status-expiring{border-top:3px solid #e67e22}
+.card.status-expired{border-top:3px solid #c0392b}
+.card.is-pinned{background:var(--pin-bg)}
+.card.on-list{border-color:var(--accent)}
+.card.bulk-selected{outline:2px solid var(--accent);outline-offset:2px}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px}
+.card-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.3;flex:1;padding-right:8px}
+.card-actions{display:flex;gap:4px}
+.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--text3);padding:3px;border-radius:6px;font-size:15px;line-height:1;transition:all .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn.pinned{color:var(--pin-text)}
+.icon-btn.on-list-icon{color:var(--accent)}
+
+.card-cat{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+
+.qty-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.qty-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:17px;color:var(--text2);display:flex;align-items:center;justify-content:center;line-height:1;transition:all .15s;flex-shrink:0}
+.qty-btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+.qty-val{font-size:17px;font-weight:600;font-family:'DM Mono',monospace;min-width:32px;text-align:center;color:var(--text)}
+.qty-unit{font-size:12px;color:var(--text3);flex:1}
+
+.card-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.meta-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text3)}
+.meta-val{color:var(--text2);font-family:'DM Mono',monospace;font-size:11px}
+.meta-val.warn{color:var(--amber-text)}
+.meta-val.danger{color:var(--danger-text)}
+.meta-val.good{color:var(--accent)}
+
+.status-badge{display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:500;margin-bottom:8px}
+.b-ok{background:var(--accent-bg);color:var(--accent-text)}
+.b-low{background:var(--amber-bg);color:var(--amber-text)}
+.b-out{background:var(--danger-bg);color:var(--danger-text)}
+.b-list{background:var(--accent-bg);color:var(--accent-text)}
+.b-expiring{background:var(--warn-bg);color:var(--warn-text)}
+.b-expired{background:var(--danger-bg);color:var(--danger-text)}
+.b-pin{background:var(--pin-bg);color:var(--pin-text)}
+
+.list-btn{width:100%;padding:7px;font-size:12px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--text2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.list-btn:hover{background:var(--surface2)}
+.list-btn.on{background:var(--accent-bg);color:var(--accent-text);border-color:var(--accent)}
+
+/* BULK */
+.bulk-bar{background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--rl);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.bulk-bar span{font-size:13px;color:var(--accent-text);font-weight:500;flex:1}
+.bulk-input{width:80px;padding:6px 10px;font-size:13px}
+
+/* GROCERY */
+.grocery-section{margin-bottom:1.5rem}
+.grocery-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;padding-left:2px}
+.g-item{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;margin-bottom:6px;transition:opacity .2s}
+.g-item.checked{opacity:.4}
+.g-item input[type=checkbox]{width:17px;height:17px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.g-name{flex:1;font-size:14px;color:var(--text)}
+.g-qty{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;white-space:nowrap}
+.g-rm{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 4px;border-radius:4px;line-height:1;transition:all .15s}
+.g-rm:hover{color:var(--danger-text);background:var(--danger-bg)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--rl);padding:1.5rem;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:1rem}
+.modal-field{margin-bottom:12px}
+.modal-field label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.modal-actions{display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end}
+.btn-primary{background:var(--accent);color:white;border:none;border-radius:var(--r);padding:9px 20px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.88}
+.btn-cancel{background:transparent;border:1px solid var(--border2);border-radius:var(--r);padding:9px 20px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text2);cursor:pointer;transition:all .15s}
+.btn-cancel:hover{background:var(--surface2)}
+
+/* BARCODE */
+.scanner-wrap{position:relative;border-radius:var(--rl);overflow:hidden;background:#000;aspect-ratio:4/3;margin-bottom:1rem}
+#barcode-video{width:100%;height:100%;object-fit:cover;display:block}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scanner-frame{width:70%;max-width:260px;aspect-ratio:3/1;border:2px solid rgba(255,255,255,.8);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+.scanner-line{position:absolute;width:70%;max-width:260px;height:2px;background:var(--accent);animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(-40px)}50%{transform:translateY(40px)}}
+.scanner-status{font-size:13px;color:var(--text2);text-align:center;padding:.5rem}
+
+/* EXPIRY VIEW */
+.expiry-list{display:flex;flex-direction:column;gap:8px}
+.expiry-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px}
+.expiry-name{flex:1;font-size:14px;font-weight:500}
+.expiry-days{font-size:13px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:999px;font-weight:500}
+
+/* CONSUMPTION */
+.rate-chart{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1rem;margin-bottom:10px}
+.rate-bar-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.rate-label{font-size:13px;color:var(--text2);width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rate-bar-bg{flex:1;height:8px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.rate-bar-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.rate-val{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;width:90px;text-align:right;white-space:nowrap}
+
+/* SAVE */
+.toast{position:fixed;bottom:1rem;right:1rem;background:var(--accent-bg);color:var(--accent-text);border:1px solid var(--accent);border-radius:var(--r);padding:8px 16px;font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:300}
+.toast.show{opacity:1}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px;grid-column:1/-1}
+.empty-icon{font-size:32px;margin-bottom:.5rem}
+
+/* MANAGE CATS */
+.cat-manage{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.cat-row{display:flex;align-items:center;gap:8px}
+.cat-row span{flex:1;font-size:14px}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr 1fr}
+  .item-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .header-logo{font-size:15px}
+}
+@media(max-width:400px){
+  .item-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">Home<span>Stock</span></div>
+  <button class="header-btn" onclick="openScanner()" id="scan-btn">📷 Scan</button>
+  <button class="header-btn" onclick="toggleBulk()" id="bulk-btn">✏️ Bulk edit</button>
+</div>
+
+<div class="nav">
+  <button class="nav-tab active" onclick="showTab('inventory')" id="t-inventory">Inventory</button>
+  <button class="nav-tab" onclick="showTab('grocery')" id="t-grocery">Grocery list <span class="nav-badge" id="grocery-badge" style="display:none"></span></button>
+  <button class="nav-tab" onclick="showTab('expiry')" id="t-expiry">Expiry <span class="nav-badge warn" id="expiry-badge" style="display:none"></span></button>
+  <button class="nav-tab" onclick="showTab('consumption')" id="t-consumption">Consumption</button>
+</div>
+
+<!-- INVENTORY TAB -->
+<div class="wrap" id="tab-inventory">
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total items</div><div class="stat-val" id="s-total">0</div></div>
+    <div class="stat"><div class="stat-label">In stock</div><div class="stat-val" id="s-ok" style="color:var(--accent)">0</div></div>
+    <div class="stat s-low"><div class="stat-label">Running low</div><div class="stat-val" id="s-low">0</div></div>
+    <div class="stat s-out"><div class="stat-label">Out of stock</div><div class="stat-val" id="s-out">0</div></div>
+  </div>
+
+  <div class="add-panel">
+    <div class="add-panel-title">
+      <span>Add new item</span>
+    </div>
+    <div class="form-grid" id="add-form-grid">
+      <div class="form-field">
+        <div class="form-label">Name</div>
+        <input type="text" id="n-name" placeholder="e.g. Toilet paper" />
+      </div>
+      <div class="form-field">
+        <div class="form-label">Category</div>
+        <select id="n-cat"></select>
+      </div>
+      <div class="form-field">
+        <div class="form-label">Qty</div>
+        <input type="number" id="n-qty" placeholder="0" min="0" />
+      </div>
+      <div class="form-field">
+        <div class="form-label">Unit</div>
+        <input type="text" id="n-unit" placeholder="rolls, kg…" />
+      </div>
+      <div class="form-field">
+        <div class="form-label">Low at</div>
+        <input type="number" id="n-low" placeholder="2" min="0" title="Flag as low when qty hits this" />
+      </div>
+      <div class="form-field">
+        <div class="form-label">Restock to</div>
+        <input type="number" id="n-restock" placeholder="6" min="0" title="Target quantity when restocking" />
+      </div>
+      <div class="form-field">
+        <div class="form-label">&nbsp;</div>
+        <button class="btn-primary" onclick="addItem()" style="white-space:nowrap">Add item</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <div class="form-field" style="flex:1;min-width:150px">
+        <div class="form-label">Expiry date (optional)</div>
+        <input type="date" id="n-expiry" />
+      </div>
+      <div class="form-field" style="flex:1;min-width:150px">
+        <div class="form-label">Notes (optional)</div>
+        <input type="text" id="n-notes" placeholder="Brand, location…" />
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search items…" oninput="render()" style="flex:1;min-width:160px" />
+    <button class="tool-btn" id="filter-pinned" onclick="togglePinnedFilter()">⭐ Pinned</button>
+    <button class="tool-btn" id="filter-low" onclick="toggleLowFilter()">⚠ Low/Out</button>
+    <select id="sort-select" onchange="render()" style="font-size:13px;padding:8px 12px;border-radius:var(--r)">
+      <option value="name">Sort: Name</option>
+      <option value="qty">Sort: Qty</option>
+      <option value="status">Sort: Status</option>
+      <option value="expiry">Sort: Expiry</option>
+      <option value="cat">Sort: Category</option>
+    </select>
+  </div>
+
+  <div class="filters" id="cat-filter"></div>
+
+  <div id="bulk-bar" class="bulk-bar" style="display:none">
+    <span id="bulk-count">0 items selected</span>
+    <input type="number" class="bulk-input" id="bulk-qty" placeholder="Set qty" min="0" />
+    <button class="tool-btn" onclick="applyBulkQty()">Set qty</button>
+    <button class="tool-btn" onclick="bulkAddToList()">Add to list</button>
+    <button class="tool-btn" onclick="bulkDelete()" style="color:var(--danger-text)">Delete</button>
+    <button class="tool-btn" onclick="clearBulkSelection()">Cancel</button>
+  </div>
+
+  <div class="item-grid" id="item-grid"></div>
+</div>
+
+<!-- GROCERY TAB -->
+<div class="wrap" id="tab-grocery" style="display:none">
+  <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+    <div class="stat"><div class="stat-label">To buy</div><div class="stat-val" id="g-total">0</div></div>
+    <div class="stat"><div class="stat-label">Checked off</div><div class="stat-val" id="g-done" style="color:var(--accent)">0</div></div>
+  </div>
+  <div class="toolbar" style="margin-bottom:1rem">
+    <button class="tool-btn" onclick="openManualGrocery()">+ Add manually</button>
+    <button class="tool-btn" onclick="addAllLow()">+ Add all low / out</button>
+    <button class="tool-btn" onclick="clearChecked()">Clear checked</button>
+    <button class="tool-btn" onclick="clearAll()" style="color:var(--danger-text)">Clear all</button>
+  </div>
+  <div id="grocery-list"></div>
+</div>
+
+<!-- EXPIRY TAB -->
+<div class="wrap" id="tab-expiry" style="display:none">
+  <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:13px;color:var(--text2)">Items sorted by nearest expiry date</div>
+  </div>
+  <div class="expiry-list" id="expiry-list"></div>
+</div>
+
+<!-- CONSUMPTION TAB -->
+<div class="wrap" id="tab-consumption" style="display:none">
+  <div style="margin-bottom:1rem">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:.5rem">Tracks how many units per day each item is used, based on your quantity changes. Items with no usage data are excluded.</div>
+  </div>
+  <div id="consumption-list"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Saved</div>
+
+<!-- MODAL: Edit item -->
+<div class="modal-overlay" id="edit-modal" style="display:none" onclick="closeEditIfBg(event)">
+  <div class="modal">
+    <h3>Edit item</h3>
+    <input type="hidden" id="edit-id" />
+    <div class="modal-field"><label>Name</label><input type="text" id="edit-name" /></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="modal-field"><label>Category</label><select id="edit-cat"></select></div>
+      <div class="modal-field"><label>Unit</label><input type="text" id="edit-unit" /></div>
+      <div class="modal-field"><label>Current qty</label><input type="number" id="edit-qty" min="0" /></div>
+      <div class="modal-field"><label>Low at</label><input type="number" id="edit-low" min="0" /></div>
+      <div class="modal-field"><label>Restock to</label><input type="number" id="edit-restock" min="0" /></div>
+      <div class="modal-field"><label>Expiry date</label><input type="date" id="edit-expiry" /></div>
+    </div>
+    <div class="modal-field"><label>Notes</label><input type="text" id="edit-notes" placeholder="Brand, location, etc." /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+      <button class="btn-primary" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Manage categories -->
+<div class="modal-overlay" id="cat-modal" style="display:none" onclick="closeCatIfBg(event)">
+  <div class="modal">
+    <h3>Manage categories</h3>
+    <div class="cat-manage" id="cat-manage-list"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input type="text" id="new-cat-input" placeholder="New category name" style="flex:1" />
+      <button class="btn-primary" onclick="addCategory()">Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeCat()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Manual grocery -->
+<div class="modal-overlay" id="manual-modal" style="display:none" onclick="closeManualIfBg(event)">
+  <div class="modal">
+    <h3>Add to grocery list</h3>
+    <div class="modal-field"><label>Item name</label><input type="text" id="m-name" placeholder="e.g. Avocados" /></div>
+    <div class="modal-field"><label>Category</label><select id="m-cat"></select></div>
+    <div class="modal-field"><label>Quantity to buy (optional)</label><input type="text" id="m-qty" placeholder="e.g. 2 bags" /></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeManual()">Cancel</button>
+      <button class="btn-primary" onclick="confirmManual()">Add to list</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Barcode scanner -->
+<div class="modal-overlay" id="scanner-modal" style="display:none" onclick="closeScannerIfBg(event)">
+  <div class="modal" style="max-width:480px">
+    <h3>Scan barcode</h3>
+    <div class="scanner-wrap">
+      <video id="barcode-video" autoplay playsinline muted></video>
+      <div class="scanner-overlay">
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;width:70%">
+          <div class="scanner-frame"></div>
+          <div class="scanner-line"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scanner-status" id="scanner-status">Point camera at a barcode</div>
+    <div id="scan-result" style="display:none;padding:10px;background:var(--accent-bg);border-radius:var(--r);margin-bottom:10px">
+      <div style="font-size:13px;color:var(--accent-text);font-weight:500" id="scan-product-name">Product found</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px" id="scan-barcode-val"></div>
+    </div>
+    <div id="scan-add-form" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="modal-field"><label>Name</label><input type="text" id="scan-name" /></div>
+        <div class="modal-field"><label>Category</label><select id="scan-cat"></select></div>
+        <div class="modal-field"><label>Qty</label><input type="number" id="scan-qty" value="1" min="0" /></div>
+        <div class="modal-field"><label>Unit</label><input type="text" id="scan-unit" placeholder="units" /></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeScanner()">Close</button>
+      <button class="btn-primary" id="scan-add-btn" style="display:none" onclick="addScannedItem()">Add item</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const DEFAULT_CATS = ['Pantry','Dairy','Produce','Frozen','Meat','Bathroom','Cleaning','Snacks','Drinks','Spices','Other'];
+const DEFAULT_ITEMS = [
+  {id:1,name:'Toilet paper',cat:'Bathroom',qty:4,unit:'rolls',low:4,restock:12,expiry:'',notes:'',pinned:false},
+  {id:2,name:'Milk',cat:'Dairy',qty:1,unit:'litre',low:1,restock:3,expiry:'',notes:'',pinned:false},
+  {id:3,name:'Eggs',cat:'Dairy',qty:12,unit:'eggs',low:6,restock:24,expiry:'',notes:'',pinned:false},
+  {id:4,name:'Bread',cat:'Pantry',qty:1,unit:'loaf',low:1,restock:2,expiry:'',notes:'',pinned:false},
+  {id:5,name:'Rice',cat:'Pantry',qty:2,unit:'kg',low:1,restock:4,expiry:'',notes:'',pinned:false},
+  {id:6,name:'Pasta',cat:'Pantry',qty:3,unit:'packs',low:1,restock:5,expiry:'',notes:'',pinned:false},
+  {id:7,name:'Dish soap',cat:'Cleaning',qty:1,unit:'bottle',low:1,restock:3,expiry:'',notes:'',pinned:false},
+  {id:8,name:'Shampoo',cat:'Bathroom',qty:1,unit:'bottle',low:1,restock:2,expiry:'',notes:'',pinned:false},
+  {id:9,name:'Butter',cat:'Dairy',qty:1,unit:'pack',low:1,restock:2,expiry:'',notes:'',pinned:false},
+  {id:10,name:'Olive oil',cat:'Pantry',qty:1,unit:'bottle',low:1,restock:2,expiry:'',notes:'',pinned:false},
+  {id:11,name:'Chips',cat:'Snacks',qty:2,unit:'bags',low:1,restock:4,expiry:'',notes:'',pinned:false},
+  {id:12,name:'Laundry detergent',cat:'Cleaning',qty:1,unit:'box',low:1,restock:2,expiry:'',notes:'',pinned:false},
+];
+
+let items=[], grocery=[], categories=[], usage={};
+let nextId=1000, nextGId=2000;
+let activeTab='inventory', activeCat='All';
+let filterPinned=false, filterLow=false, bulkMode=false, bulkSelected=new Set();
+let scanStream=null, scanBarcode='';
+
+// ── STORAGE ────────────────────────────────────────────────────────────────
+function save(){
+  try{
+    localStorage.setItem('homestock-v2',JSON.stringify({items,grocery,categories,usage,nextId,nextGId,savedAt:new Date().toISOString()}));
+    showToast('Saved');
+  }catch(e){}
+}
+
+function load(){
+  try{
+    const d=localStorage.getItem('homestock-v2');
+    if(d){
+      const p=JSON.parse(d);
+      items=p.items||DEFAULT_ITEMS;
+      grocery=p.grocery||[];
+      categories=p.categories||[...DEFAULT_CATS];
+      usage=p.usage||{};
+      nextId=p.nextId||1000;
+      nextGId=p.nextGId||2000;
+    } else {
+      items=DEFAULT_ITEMS.map(i=>({...i}));
+      grocery=[];
+      categories=[...DEFAULT_CATS];
+      usage={};
+    }
+  }catch(e){
+    items=DEFAULT_ITEMS.map(i=>({...i}));
+    grocery=[];
+    categories=[...DEFAULT_CATS];
+    usage={};
+  }
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function daysUntilExpiry(dateStr){
+  if(!dateStr) return null;
+  const diff=new Date(dateStr)-new Date();
+  return Math.ceil(diff/(1000*60*60*24));
+}
+
+function getStatus(item){
+  if(item.qty===0) return 'out';
+  if(item.qty<=(item.low??1)) return 'low';
+  return 'ok';
+}
+
+function onList(id){ return grocery.some(g=>g.itemId===id); }
+
+function addToGrocery(item){
+  if(onList(item.id)) return;
+  const restockQty = item.restock && item.restock > item.qty ? (item.restock - item.qty) : null;
+  const buyQty = restockQty ? `${restockQty} ${item.unit}` : '';
+  grocery.push({gid:nextGId++,itemId:item.id,name:item.name,cat:item.cat,buyQty,checked:false});
+}
+
+function checkAutoAdd(item){
+  const s=getStatus(item);
+  if((s==='low'||s==='out')&&!onList(item.id)){
+    addToGrocery(item);
+  }
+}
+
+function recordUsage(itemId, delta){
+  if(delta>=0) return; // only track consumption (decreases)
+  if(!usage[itemId]) usage[itemId]={log:[]};
+  usage[itemId].log.push({ts:Date.now(),delta:Math.abs(delta)});
+  // keep last 90 days
+  const cutoff=Date.now()-90*24*60*60*1000;
+  usage[itemId].log=usage[itemId].log.filter(e=>e.ts>cutoff);
+}
+
+function getRate(itemId){
+  const u=usage[itemId];
+  if(!u||!u.log.length) return null;
+  const total=u.log.reduce((s,e)=>s+e.delta,0);
+  const span=(Date.now()-u.log[0].ts)/(1000*60*60*24)||1;
+  return total/span; // units per day
+}
+
+function populateCatSelects(){
+  ['n-cat','edit-cat','m-cat','scan-cat'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const cur=el.value;
+    el.innerHTML=categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if(cur && categories.includes(cur)) el.value=cur;
+  });
+}
+
+function showToast(msg='Saved'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+// ── ITEM CRUD ──────────────────────────────────────────────────────────────
+function addItem(){
+  const name=document.getElementById('n-name').value.trim();
+  if(!name){document.getElementById('n-name').focus();return;}
+  const item={
+    id:nextId++,
+    name,
+    cat:document.getElementById('n-cat').value,
+    qty:parseInt(document.getElementById('n-qty').value)||0,
+    unit:document.getElementById('n-unit').value.trim()||'units',
+    low:parseInt(document.getElementById('n-low').value)||1,
+    restock:parseInt(document.getElementById('n-restock').value)||0,
+    expiry:document.getElementById('n-expiry').value||'',
+    notes:document.getElementById('n-notes').value.trim(),
+    pinned:false
+  };
+  items.push(item);
+  checkAutoAdd(item);
+  ['n-name','n-qty','n-unit','n-low','n-restock','n-expiry','n-notes'].forEach(i=>document.getElementById(i).value='');
+  save(); render(); renderGrocery(); renderExpiry();
+}
+
+function changeQty(id, delta){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  recordUsage(id, delta);
+  item.qty=Math.max(0,item.qty+delta);
+  checkAutoAdd(item);
+  save(); render(); renderGrocery(); renderExpiry(); renderConsumption();
+}
+
+function togglePin(id){
+  const item=items.find(i=>i.id===id);
+  if(item) item.pinned=!item.pinned;
+  save(); render();
+}
+
+function toggleList(id){
+  const idx=grocery.findIndex(g=>g.itemId===id);
+  if(idx>=0){ grocery.splice(idx,1); }
+  else { const item=items.find(i=>i.id===id); if(item) addToGrocery(item); }
+  save(); render(); renderGrocery();
+}
+
+function openEdit(id){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  populateCatSelects();
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-name').value=item.name;
+  document.getElementById('edit-cat').value=item.cat;
+  document.getElementById('edit-unit').value=item.unit;
+  document.getElementById('edit-qty').value=item.qty;
+  document.getElementById('edit-low').value=item.low||'';
+  document.getElementById('edit-restock').value=item.restock||'';
+  document.getElementById('edit-expiry').value=item.expiry||'';
+  document.getElementById('edit-notes').value=item.notes||'';
+  document.getElementById('edit-modal').style.display='flex';
+}
+
+function saveEdit(){
+  const id=parseInt(document.getElementById('edit-id').value);
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  item.name=document.getElementById('edit-name').value.trim()||item.name;
+  item.cat=document.getElementById('edit-cat').value;
+  item.unit=document.getElementById('edit-unit').value.trim()||item.unit;
+  item.qty=parseInt(document.getElementById('edit-qty').value)||0;
+  item.low=parseInt(document.getElementById('edit-low').value)||1;
+  item.restock=parseInt(document.getElementById('edit-restock').value)||0;
+  item.expiry=document.getElementById('edit-expiry').value||'';
+  item.notes=document.getElementById('edit-notes').value.trim();
+  checkAutoAdd(item);
+  closeEdit();
+  save(); render(); renderGrocery(); renderExpiry();
+}
+
+function deleteItem(id){
+  if(!confirm('Remove this item?')) return;
+  items=items.filter(i=>i.id!==id);
+  grocery=grocery.filter(g=>g.itemId!==id);
+  save(); render(); renderGrocery(); renderExpiry();
+}
+
+function closeEdit(){ document.getElementById('edit-modal').style.display='none'; }
+function closeEditIfBg(e){ if(e.target===document.getElementById('edit-modal')) closeEdit(); }
+
+// ── CATEGORIES ─────────────────────────────────────────────────────────────
+function openCatModal(){
+  const list=document.getElementById('cat-manage-list');
+  list.innerHTML=categories.map((c,i)=>`
+    <div class="cat-row">
+      <span>${c}</span>
+      ${DEFAULT_CATS.includes(c)?'<span style="font-size:11px;color:var(--text3)">built-in</span>':
+      `<button class="icon-btn" onclick="deleteCat(${i})" style="color:var(--danger-text)">×</button>`}
+    </div>`).join('');
+  document.getElementById('cat-modal').style.display='flex';
+}
+
+function addCategory(){
+  const val=document.getElementById('new-cat-input').value.trim();
+  if(!val||categories.includes(val)) return;
+  categories.push(val);
+  document.getElementById('new-cat-input').value='';
+  openCatModal();
+  populateCatSelects();
+  save();
+}
+
+function deleteCat(idx){
+  const cat=categories[idx];
+  if(items.some(i=>i.cat===cat)){
+    alert('Cannot delete — items are using this category. Re-assign them first.');
+    return;
+  }
+  categories.splice(idx,1);
+  openCatModal();
+  populateCatSelects();
+  save();
+}
+
+function closeCat(){ document.getElementById('cat-modal').style.display='none'; }
+function closeCatIfBg(e){ if(e.target===document.getElementById('cat-modal')) closeCat(); }
+
+// ── GROCERY ────────────────────────────────────────────────────────────────
+function addAllLow(){
+  let added=0;
+  items.forEach(item=>{
+    const s=getStatus(item);
+    if((s==='low'||s==='out')&&!onList(item.id)){
+      addToGrocery(item); added++;
+    }
+  });
+  if(!added){ showToast('No low/out items to add'); return; }
+  save(); render(); renderGrocery();
+}
+
+function clearChecked(){ grocery=grocery.filter(g=>!g.checked); save(); render(); renderGrocery(); }
+function clearAll(){ if(!confirm('Clear entire grocery list?')) return; grocery=[]; save(); render(); renderGrocery(); }
+
+function toggleGroceryCheck(gid){
+  const g=grocery.find(x=>x.gid===gid);
+  if(g) g.checked=!g.checked;
+  save(); renderGrocery();
+}
+
+function removeGrocery(gid){
+  grocery=grocery.filter(x=>x.gid!==gid);
+  save(); render(); renderGrocery();
+}
+
+function openManualGrocery(){ populateCatSelects(); document.getElementById('manual-modal').style.display='flex'; }
+function closeManual(){ document.getElementById('manual-modal').style.display='none'; }
+function closeManualIfBg(e){ if(e.target===document.getElementById('manual-modal')) closeManual(); }
+
+function confirmManual(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name) return;
+  grocery.push({gid:nextGId++,itemId:null,name,cat:document.getElementById('m-cat').value,buyQty:document.getElementById('m-qty').value.trim(),checked:false});
+  document.getElementById('m-name').value='';
+  document.getElementById('m-qty').value='';
+  closeManual();
+  save(); renderGrocery();
+}
+
+// ── BULK EDIT ──────────────────────────────────────────────────────────────
+function toggleBulk(){
+  bulkMode=!bulkMode;
+  bulkSelected.clear();
+  document.getElementById('bulk-bar').style.display=bulkMode?'flex':'none';
+  document.getElementById('bulk-btn').textContent=bulkMode?'✕ Exit bulk':'✏️ Bulk edit';
+  render();
+}
+
+function toggleBulkSelect(id){
+  if(!bulkMode) return;
+  bulkSelected.has(id)?bulkSelected.delete(id):bulkSelected.add(id);
+  document.getElementById('bulk-count').textContent=`${bulkSelected.size} item${bulkSelected.size!==1?'s':''} selected`;
+  render();
+}
+
+function applyBulkQty(){
+  const qty=parseInt(document.getElementById('bulk-qty').value);
+  if(isNaN(qty)) return;
+  bulkSelected.forEach(id=>{
+    const item=items.find(i=>i.id===id);
+    if(item){ item.qty=Math.max(0,qty); checkAutoAdd(item); }
+  });
+  save(); render(); renderGrocery();
+}
+
+function bulkAddToList(){
+  bulkSelected.forEach(id=>{
+    const item=items.find(i=>i.id===id);
+    if(item&&!onList(id)) addToGrocery(item);
+  });
+  save(); render(); renderGrocery();
+}
+
+function bulkDelete(){
+  if(!confirm(`Delete ${bulkSelected.size} items?`)) return;
+  items=items.filter(i=>!bulkSelected.has(i.id));
+  grocery=grocery.filter(g=>!bulkSelected.has(g.itemId));
+  bulkSelected.clear();
+  save(); render(); renderGrocery();
+}
+
+function clearBulkSelection(){ bulkSelected.clear(); document.getElementById('bulk-count').textContent='0 items selected'; render(); }
+
+// ── FILTER / SORT ──────────────────────────────────────────────────────────
+function togglePinnedFilter(){
+  filterPinned=!filterPinned;
+  document.getElementById('filter-pinned').classList.toggle('active',filterPinned);
+  render();
+}
+function toggleLowFilter(){
+  filterLow=!filterLow;
+  document.getElementById('filter-low').classList.toggle('active',filterLow);
+  render();
+}
+function setCat(c){ activeCat=c; render(); }
+
+// ── RENDER: INVENTORY ─────────────────────────────────────────────────────
+function render(){
+  const search=document.getElementById('search').value.toLowerCase();
+  const sort=document.getElementById('sort-select').value;
+
+  let filtered=items.filter(item=>{
+    if(activeCat!=='All'&&item.cat!==activeCat) return false;
+    if(filterPinned&&!item.pinned) return false;
+    if(filterLow&&getStatus(item)==='ok') return false;
+    if(search&&!item.name.toLowerCase().includes(search)&&!item.cat.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // sort: pinned always first
+  filtered.sort((a,b)=>{
+    if(a.pinned!==b.pinned) return a.pinned?-1:1;
+    if(sort==='name') return a.name.localeCompare(b.name);
+    if(sort==='qty') return a.qty-b.qty;
+    if(sort==='status'){
+      const o={out:0,low:1,ok:2};
+      return o[getStatus(a)]-o[getStatus(b)];
+    }
+    if(sort==='expiry'){
+      const da=daysUntilExpiry(a.expiry)??9999;
+      const db=daysUntilExpiry(b.expiry)??9999;
+      return da-db;
+    }
+    if(sort==='cat') return a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  // stats
+  document.getElementById('s-total').textContent=items.length;
+  document.getElementById('s-ok').textContent=items.filter(i=>getStatus(i)==='ok').length;
+  document.getElementById('s-low').textContent=items.filter(i=>getStatus(i)==='low').length;
+  document.getElementById('s-out').textContent=items.filter(i=>getStatus(i)==='out').length;
+
+  // cat filter pills
+  const allCats=['All',...categories];
+  document.getElementById('cat-filter').innerHTML=
+    allCats.map(c=>`<button class="pill${activeCat===c?' active':''}" onclick="setCat('${c}')">${c}</button>`).join('')+
+    `<button class="pill manage" onclick="openCatModal()">+ Manage</button>`;
+
+  // grocery badge
+  const gPending=grocery.filter(g=>!g.checked).length;
+  const gb=document.getElementById('grocery-badge');
+  gb.textContent=gPending; gb.style.display=gPending>0?'inline-flex':'none';
+
+  // expiry badge
+  const expWarn=items.filter(i=>{const d=daysUntilExpiry(i.expiry);return d!==null&&d<=7;}).length;
+  const eb=document.getElementById('expiry-badge');
+  eb.textContent=expWarn; eb.style.display=expWarn>0?'inline-flex':'none';
+
+  const grid=document.getElementById('item-grid');
+  if(!filtered.length){
+    grid.innerHTML='<div class="empty"><div class="empty-icon">📦</div>No items found</div>';
+    return;
+  }
+
+  grid.innerHTML=filtered.map(item=>{
+    const s=getStatus(item);
+    const listed=onList(item.id);
+    const days=daysUntilExpiry(item.expiry);
+    const expClass=days!==null?(days<0?'status-expired':days<=3?'status-expiring status-out':days<=7?'status-expiring':''):'';
+    const cardClass=[
+      s==='low'?'status-low':'',
+      s==='out'?'status-out':'',
+      expClass,
+      item.pinned?'is-pinned':'',
+      listed?'on-list':'',
+      bulkMode&&bulkSelected.has(item.id)?'bulk-selected':''
+    ].filter(Boolean).join(' ');
+
+    const badgeClass=listed?'b-list':s==='ok'?'b-ok':s==='low'?'b-low':'b-out';
+    const badgeText=listed?'On list':s==='ok'?'In stock':s==='low'?'Low':'Out';
+
+    const expBadge=days!==null?`<span class="status-badge ${days<0?'b-expired':days<=7?'b-expiring':'b-ok'}" style="margin-left:6px">${days<0?'Expired':days===0?'Today':days===1?'1 day':`${days}d`}</span>`:'';
+
+    const rate=getRate(item.id);
+    const rateMeta=rate?`<div class="meta-row"><span>Daily use</span><span class="meta-val">${rate.toFixed(2)} ${item.unit}/day</span></div>`:'';
+    const daysLeft=rate&&item.qty>0?`<div class="meta-row"><span>Runs out in</span><span class="meta-val ${Math.floor(item.qty/rate)<=7?'warn':''}">${Math.floor(item.qty/rate)}d</span></div>`:'';
+    const restockMeta=item.restock?`<div class="meta-row"><span>Restock to</span><span class="meta-val good">${item.restock} ${item.unit}</span></div>`:'';
+
+    const clickHandler=bulkMode?`onclick="toggleBulkSelect(${item.id})"`:'' ;
+
+    return `<div class="card ${cardClass}" ${clickHandler}>
+      <div class="card-top">
+        <div class="card-name">${item.name}</div>
+        <div class="card-actions">
+          <button class="icon-btn ${item.pinned?'pinned':''}" onclick="event.stopPropagation();togglePin(${item.id})" title="${item.pinned?'Unpin':'Pin'}">⭐</button>
+          <button class="icon-btn" onclick="event.stopPropagation();openEdit(${item.id})" title="Edit">✎</button>
+          <button class="icon-btn" onclick="event.stopPropagation();deleteItem(${item.id})" title="Delete" style="color:var(--text3)">×</button>
+        </div>
+      </div>
+      <div class="card-cat">${item.cat}${item.notes?` · ${item.notes}`:''}</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="event.stopPropagation();changeQty(${item.id},-1)">−</button>
+        <span class="qty-val">${item.qty}</span>
+        <span class="qty-unit">${item.unit}</span>
+        <button class="qty-btn" onclick="event.stopPropagation();changeQty(${item.id},1)">+</button>
+      </div>
+      <div style="margin-bottom:6px">
+        <span class="status-badge ${badgeClass}">${badgeText}</span>${expBadge}
+      </div>
+      <div class="card-meta">
+        ${rateMeta}${daysLeft}${restockMeta}
+      </div>
+      ${!bulkMode?`<button class="list-btn ${listed?'on':''}" onclick="toggleList(${item.id})">
+        ${listed?'✓ On grocery list':'+ Add to grocery list'}
+      </button>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER: GROCERY ────────────────────────────────────────────────────────
+function renderGrocery(){
+  const pending=grocery.filter(g=>!g.checked).length;
+  const done=grocery.filter(g=>g.checked).length;
+  document.getElementById('g-total').textContent=pending;
+  document.getElementById('g-done').textContent=done;
+
+  const list=document.getElementById('grocery-list');
+  if(!grocery.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🛒</div>Your grocery list is empty.<br>Items auto-add when they go low.</div>';
+    return;
+  }
+
+  const sorted=[...grocery].sort((a,b)=>a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name));
+  let html='', lastCat='';
+  sorted.forEach(g=>{
+    if(g.cat!==lastCat){
+      html+=`<div class="grocery-section"><div class="grocery-section-title">${g.cat}</div>`;
+      lastCat=g.cat;
+    }
+    html+=`<div class="g-item${g.checked?' checked':''}">
+      <input type="checkbox" ${g.checked?'checked':''} onchange="toggleGroceryCheck(${g.gid})" />
+      <span class="g-name">${g.name}</span>
+      ${g.buyQty?`<span class="g-qty">Buy ${g.buyQty}</span>`:''}
+      <button class="g-rm" onclick="removeGrocery(${g.gid})">×</button>
+    </div>`;
+  });
+  // close open sections
+  list.innerHTML=html;
+}
+
+// ── RENDER: EXPIRY ─────────────────────────────────────────────────────────
+function renderExpiry(){
+  const withExpiry=items.filter(i=>i.expiry).sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+  const list=document.getElementById('expiry-list');
+  if(!withExpiry.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">📅</div>No expiry dates set.<br>Add them when editing or creating items.</div>';
+    return;
+  }
+  list.innerHTML=withExpiry.map(item=>{
+    const days=daysUntilExpiry(item.expiry);
+    let bg,color,label;
+    if(days<0){bg='var(--danger-bg)';color='var(--danger-text)';label='Expired';}
+    else if(days===0){bg='var(--danger-bg)';color='var(--danger-text)';label='Today!';}
+    else if(days<=3){bg='var(--amber-bg)';color='var(--amber-text)';label=`${days}d left`;}
+    else if(days<=7){bg='var(--warn-bg)';color='var(--warn-text)';label=`${days}d left`;}
+    else{bg='var(--accent-bg)';color='var(--accent-text)';label=`${days}d left`;}
+    return `<div class="expiry-card">
+      <div style="flex:1">
+        <div class="expiry-name">${item.name}</div>
+        <div style="font-size:12px;color:var(--text3)">${item.cat} · ${item.expiry}</div>
+      </div>
+      <span class="expiry-days" style="background:${bg};color:${color}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER: CONSUMPTION ────────────────────────────────────────────────────
+function renderConsumption(){
+  const rated=items.map(i=>({item:i,rate:getRate(i.id)})).filter(x=>x.rate).sort((a,b)=>b.rate-a.rate);
+  const con=document.getElementById('consumption-list');
+  if(!rated.length){
+    con.innerHTML='<div class="empty"><div class="empty-icon">📊</div>No usage data yet.<br>Adjust quantities to track consumption.</div>';
+    return;
+  }
+  const maxRate=rated[0].rate;
+  con.innerHTML='<div class="rate-chart">'+rated.map(({item,rate})=>{
+    const daysLeft=rate&&item.qty>0?Math.floor(item.qty/rate):null;
+    return `<div class="rate-bar-wrap">
+      <div class="rate-label" title="${item.name}">${item.name}</div>
+      <div class="rate-bar-bg"><div class="rate-bar-fill" style="width:${(rate/maxRate*100).toFixed(1)}%"></div></div>
+      <div class="rate-val">${rate.toFixed(2)}/day${daysLeft!==null?` · ${daysLeft}d left`:''}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function showTab(t){
+  ['inventory','grocery','expiry','consumption'].forEach(id=>{
+    document.getElementById(`tab-${id}`).style.display=id===t?'block':'none';
+    document.getElementById(`t-${id}`).classList.toggle('active',id===t);
+  });
+  activeTab=t;
+  if(t==='grocery') renderGrocery();
+  if(t==='expiry') renderExpiry();
+  if(t==='consumption') renderConsumption();
+}
+
+// ── BARCODE SCANNER ────────────────────────────────────────────────────────
+function openScanner(){
+  populateCatSelects();
+  document.getElementById('scanner-modal').style.display='flex';
+  document.getElementById('scan-result').style.display='none';
+  document.getElementById('scan-add-form').style.display='none';
+  document.getElementById('scan-add-btn').style.display='none';
+  document.getElementById('scanner-status').textContent='Starting camera…';
+  startCamera();
+}
+
+function startCamera(){
+  if(!navigator.mediaDevices){
+    document.getElementById('scanner-status').textContent='Camera not available on this device/browser.';
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+    .then(stream=>{
+      scanStream=stream;
+      const vid=document.getElementById('barcode-video');
+      vid.srcObject=stream;
+      vid.play();
+      document.getElementById('scanner-status').textContent='Point camera at a barcode';
+      initQuagga();
+    })
+    .catch(()=>{
+      document.getElementById('scanner-status').textContent='Camera permission denied. Enter manually below.';
+      showManualScanEntry();
+    });
+}
+
+function initQuagga(){
+  if(typeof Quagga==='undefined') return;
+  Quagga.init({
+    inputStream:{name:'Live',type:'LiveStream',target:document.getElementById('barcode-video'),constraints:{facingMode:'environment'}},
+    decoder:{readers:['ean_reader','ean_8_reader','upc_reader','upc_e_reader','code_128_reader','code_39_reader']},
+    locate:true
+  },err=>{
+    if(err){ document.getElementById('scanner-status').textContent='Scanner ready — point at barcode'; return; }
+    Quagga.start();
+    Quagga.onDetected(data=>{
+      const code=data.codeResult.code;
+      if(code&&code!==scanBarcode){
+        scanBarcode=code;
+        onBarcodeDetected(code);
+      }
+    });
+  });
+}
+
+function onBarcodeDetected(code){
+  Quagga.stop();
+  document.getElementById('scanner-status').textContent=`Barcode detected: ${code}`;
+  document.getElementById('scan-barcode-val').textContent=code;
+  document.getElementById('scan-result').style.display='block';
+  // Try Open Food Facts for product name
+  document.getElementById('scan-product-name').textContent='Looking up product…';
+  fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+    .then(r=>r.json())
+    .then(data=>{
+      const name=data.product?.product_name||data.product?.product_name_en||'';
+      if(name){
+        document.getElementById('scan-product-name').textContent=name;
+        document.getElementById('scan-name').value=name;
+        const cat=guessCatFromProduct(data.product);
+        document.getElementById('scan-cat').value=cat;
+      } else {
+        document.getElementById('scan-product-name').textContent='Product not found — enter details manually';
+        document.getElementById('scan-name').value='';
+      }
+      showScanAddForm();
+    })
+    .catch(()=>{
+      document.getElementById('scan-product-name').textContent='Could not look up product — enter manually';
+      showScanAddForm();
+    });
+}
+
+function guessCatFromProduct(product){
+  const cats=product?.categories_tags||[];
+  const joined=cats.join(' ').toLowerCase();
+  if(joined.includes('dairy')||joined.includes('milk')||joined.includes('cheese')) return 'Dairy';
+  if(joined.includes('meat')||joined.includes('poultry')||joined.includes('fish')) return 'Meat';
+  if(joined.includes('snack')||joined.includes('biscuit')||joined.includes('crisp')) return 'Snacks';
+  if(joined.includes('beverage')||joined.includes('drink')||joined.includes('juice')) return 'Drinks';
+  if(joined.includes('frozen')) return 'Frozen';
+  if(joined.includes('spice')||joined.includes('herb')||joined.includes('seasoning')) return 'Spices';
+  if(joined.includes('cleaning')||joined.includes('detergent')) return 'Cleaning';
+  return 'Pantry';
+}
+
+function showScanAddForm(){
+  document.getElementById('scan-add-form').style.display='block';
+  document.getElementById('scan-add-btn').style.display='inline-flex';
+  document.getElementById('scan-qty').value='1';
+  document.getElementById('scan-unit').value='units';
+}
+
+function showManualScanEntry(){
+  document.getElementById('scan-add-form').style.display='block';
+  document.getElementById('scan-add-btn').style.display='inline-flex';
+}
+
+function addScannedItem(){
+  const name=document.getElementById('scan-name').value.trim();
+  if(!name){ document.getElementById('scan-name').focus(); return; }
+  const item={
+    id:nextId++,
+    name,
+    cat:document.getElementById('scan-cat').value,
+    qty:parseInt(document.getElementById('scan-qty').value)||1,
+    unit:document.getElementById('scan-unit').value.trim()||'units',
+    low:1, restock:0, expiry:'', notes:'', pinned:false
+  };
+  items.push(item);
+  checkAutoAdd(item);
+  closeScanner();
+  save(); render();
+  showToast(`"${name}" added`);
+}
+
+function closeScanner(){
+  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  if(typeof Quagga!=='undefined'){ try{ Quagga.stop(); }catch(e){} }
+  scanBarcode='';
+  document.getElementById('scanner-modal').style.display='none';
+}
+function closeScannerIfBg(e){ if(e.target===document.getElementById('scanner-modal')) closeScanner(); }
+
+// ── KEYBOARD SHORTCUTS ─────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeEdit(); closeCat(); closeManual(); closeScanner();
+  }
+  if((e.metaKey||e.ctrlKey)&&e.key==='Enter'&&activeTab==='inventory'){
+    addItem();
+  }
+});
+document.getElementById('n-name').addEventListener('keydown',e=>{ if(e.key==='Enter') addItem(); });
+document.getElementById('m-name').addEventListener('keydown',e=>{ if(e.key==='Enter') confirmManual(); });
+document.getElementById('edit-name').addEventListener('keydown',e=>{ if(e.key==='Enter') saveEdit(); });
+document.getElementById('new-cat-input').addEventListener('keydown',e=>{ if(e.key==='Enter') addCategory(); });
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+load();
+populateCatSelects();
+render();
+renderGrocery();
+renderExpiry();
+renderConsumption();
+</script>
+</body>
+</html>
